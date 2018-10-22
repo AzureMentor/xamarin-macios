@@ -3,9 +3,11 @@ include $(TOP)/Make.config
 
 PREFIX=$(abspath $(IOS_DESTDIR)/$(MONOTOUCH_PREFIX)/)
 
-MONO_HASH=f87470806dc6e77b563390ca04f08d8f9811e317
+MONO_HASH:=$(shell cd $(MONO_PATH) && git rev-parse HEAD)
 MONO_FILENAME=ios-release-Darwin-$(MONO_HASH).zip
 MONO_URL=https://xamjenkinsartifact.blob.core.windows.net/mono-sdks/$(MONO_FILENAME)
+
+download: downloads/$(MONO_FILENAME)
 
 downloads/$(MONO_FILENAME):
 	mkdir -p downloads
