@@ -63,13 +63,11 @@ endif
 
 # this is a list of all the files from mono we care about, so that we
 # can use that list as dependencies for our makefile targets
-ifneq ($(MONO_BUILD_FROM_SOURCE),)
 -include .deps.mono.mk
 .deps.mono.mk: $(TOP)/.git/modules/external/mono/HEAD
 	$(Q) printf 'MONO_DEPENDENCIES += Makefile \\\n' > $@.tmp
 	$(Q) cd $(MONO_PATH) && git ls-files 'mcs/class/*.cs' '*.h' '*.c' '*.cpp' | grep -v "/Test/" | sed 's/ /\\ /g' | sed 's@^\(.*\)$$@	$(MONO_PATH)/\1 \\@' >> $(abspath $@).tmp
 	$(Q) mv $@.tmp $@
-endif
 
 # ld: weak import of symbol '_fstatat' not supported because of option: -no_weak_imports for architecture x86_64
 # according to 'man fstatat' it appeared in OS X 10.10 (iOS 8)
@@ -454,21 +452,26 @@ TOOLS64_CXXFLAGS=-arch x86_64 -mmacosx-version-min=$(MIN_OSX_SDK_VERSION)
 TOOLS64_LDFLAGS=-arch x86_64 -mmacosx-version-min=$(MIN_OSX_SDK_VERSION) $(COMMON_LDFLAGS)
 
 TOOLS64_CONFIGURE_FLAGS=	--build=x86_64-apple-darwin10 \
-			--with-monotouch_tv=yes \
-			--with-monotouch_watch=yes \
 			--prefix=$(BUILD_DESTDIR)/tools64 \
 			--enable-maintainer-mode \
 			--cache-file=../tools64.config.cache \
 			--with-glib=embedded \
 			--enable-minimal=com	\
 			--with-profile4_x=no \
-			--with-monotouch=yes \
 			--with-xammac=yes \
 			--with-mcs-docs=no \
 			--disable-nls \
 			--disable-iconv	\
 			--disable-boehm \
 			$(XAMARIN_IOS_CONFIGURE_FLAGS) \
+
+ifeq ($(MONO_BUILD_FROM_SOURCE),)
+TOOLS64_CONFIGURE_FLAGS += \
+			--with-monotouch=yes \
+			--with-monotouch_tv=yes \
+			--with-monotouch_watch=yes \
+
+endif
 
 TOOLS64_ACVARS = $(COMMON_ACVARS)
 
@@ -931,6 +934,9 @@ $(IOS_DESTDIR)$(XAMARIN_WATCHSIMULATOR_SDK)/Frameworks/Mono.framework/Mono: $(IO
 	$(Q) cp $< $@
 	$(Q) $(WATCHOS_BIN_PATH)/install_name_tool -id @rpath/Mono.framework/Mono $@
 	$(Q) dsymutil -t 4 -o $(patsubst %/,%,$(dir $@)).dSYM $@
+
+x:
+	$(MAKE) $(IOS_DESTDIR)$(XAMARIN_WATCHSIMULATOR_SDK)/Frameworks/Mono.framework/Mono
 
 $(IOS_DESTDIR)$(XAMARIN_WATCHSIMULATOR_SDK)/Frameworks/Mono.framework/Info.plist: Mono.framework-watchos.Info.plist | $(IOS_DESTDIR)$(XAMARIN_WATCHSIMULATOR_SDK)/Frameworks/Mono.framework
 	$(Q) cp $< $@
