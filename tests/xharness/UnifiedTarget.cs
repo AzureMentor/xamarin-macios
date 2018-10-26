@@ -6,7 +6,7 @@ namespace xharness
 	{
 		public override string Suffix {
 			get {
-				return "-ios";
+				return MonoNativeInfo != null ? MonoNativeInfo.FlavorSuffix : "-ios";
 			}
 		}
 			
@@ -55,8 +55,17 @@ namespace xharness
 			}
 		}
 
+		protected override void CalculateName ()
+		{
+			base.CalculateName ();
+			if (MonoNativeInfo != null)
+				Name = Name + MonoNativeInfo.FlavorSuffix;
+		}
+
 		protected override string GetMinimumOSVersion(string templateMinimumOSVersion)
 		{
+			if (MonoNativeInfo != null)
+				return MonoNativeInfo.GetMinimumOSVersion ();
 			return templateMinimumOSVersion;
 		}
 
@@ -86,6 +95,8 @@ namespace xharness
 
 		public override string ProjectFileSuffix {
 			get {
+				if (MonoNativeInfo != null)
+					return MonoNativeInfo.FlavorSuffix;
 				return string.Empty;
 			}
 		}
@@ -98,7 +109,8 @@ namespace xharness
 
 		protected override void ExecuteInternal ()
 		{
-			// Nothing to do here
+			if (MonoNativeInfo != null)
+				base.ExecuteInternal ();
 		}
 	}
 }

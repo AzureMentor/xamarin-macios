@@ -9,7 +9,7 @@ namespace xharness
 	{
 		public override string Suffix {
 			get {
-				return "-tvos";
+				return MonoNativeInfo != null ? MonoNativeInfo.FlavorSuffix + "-tvos" : "-tvos";
 			}
 		}
 
@@ -55,8 +55,17 @@ namespace xharness
 			}
 		}
 
+		protected override void CalculateName ()
+		{
+			base.CalculateName ();
+			if (MonoNativeInfo != null)
+				Name = Name + MonoNativeInfo.FlavorSuffix;
+		}
+
 		protected override string GetMinimumOSVersion(string templateMinimumOSVersion)
 		{
+			if (MonoNativeInfo != null)
+				return MonoNativeInfo.GetMinimumOSVersion ();
 			return "9.0";
 		}
 

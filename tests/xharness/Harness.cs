@@ -353,6 +353,16 @@ namespace xharness
 			IOSTestProjects.Add (new iOSTestProject (Path.GetFullPath (Path.Combine (RootDirectory, "linker", "ios", "link all", "link all.csproj"))) { Configurations = new string [] { "Debug", "Release" } });
 			IOSTestProjects.Add (new iOSTestProject (Path.GetFullPath (Path.Combine (RootDirectory, "linker", "ios", "link sdk", "link sdk.csproj"))) { Configurations = new string [] { "Debug", "Release" } });
 
+			foreach (var flavor in new MonoNativeFlavor[] { MonoNativeFlavor.Compat, MonoNativeFlavor.Unified }) {
+				var monoNativeInfo = new MonoNativeInfo (this, flavor);
+				var iosTestProject = new iOSTestProject (monoNativeInfo.ProjectPath, generateVariations: false) {
+					MonoNativeInfo = monoNativeInfo,
+					Name = monoNativeInfo.ProjectName
+				};
+
+				IOSTestProjects.Add (iosTestProject);
+			}
+
 			WatchOSContainerTemplate = Path.GetFullPath (Path.Combine (RootDirectory, "templates/WatchContainer"));
 			WatchOSAppTemplate = Path.GetFullPath (Path.Combine (RootDirectory, "templates/WatchApp"));
 			WatchOSExtensionTemplate = Path.GetFullPath (Path.Combine (RootDirectory, "templates/WatchExtension"));
@@ -488,11 +498,16 @@ namespace xharness
 
 			foreach (var bclTestInfo in IOSTestProjects.Where (x => x.BCLInfo != null).Select (x => x.BCLInfo))
 				bclTestInfo.Convert ();
+			foreach (var monoNativeInfo in IOSTestProjects.Where (x => x.MonoNativeInfo != null).Select (x => x.MonoNativeInfo))
+				monoNativeInfo.Convert ();
 
 			foreach (var proj in IOSTestProjects) {
 				var file = proj.Path;
 				if (!File.Exists (file))
 					throw new FileNotFoundException (file);
+
+				if (proj.MonoNativeInfo != null)
+					file = proj.MonoNativeInfo.TemplatePath;
 
 				if (!proj.SkipwatchOSVariation) {
 					var watchos = new WatchOSTarget () {
@@ -522,6 +537,11 @@ namespace xharness
 					};
 					unified.Execute ();
 					unified_targets.Add (unified);
+
+					if (proj.MonoNativeInfo != null) {
+						//FIXME
+						continue;
+					}
 
 					var today = new TodayExtensionTarget {
 						TemplateProjectPath = file,

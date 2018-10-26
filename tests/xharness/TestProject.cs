@@ -150,6 +150,9 @@ namespace xharness
 		// Optional
 		public BCLTestInfo BCLInfo { get; set; }
 
+		// Optional
+		public MonoNativeInfo MonoNativeInfo { get; set; }
+
 		public iOSTestProject ()
 		{
 		}
