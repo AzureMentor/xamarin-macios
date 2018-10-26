@@ -17,7 +17,12 @@ install-recurse:: install-local
 all-recurse clean-recurse install-recurse::
 	@for dir in $(SUBDIRS); do \
 		echo "Making $(subst -recurse,,$@) in $$dir"; \
-		$(MAKE) -C $$dir $(subst -recurse,,$@) || exit 1; \
+		START=$$(perl -MTime::HiRes -e 'printf("%.0f\n",Time::HiRes::time()*1000)'); \
+		$(MAKE) -C $$dir $(subst -recurse,,$@); \
+		EC=$$?; \
+		END=$$(perl -MTime::HiRes -e 'printf("%.0f\n",Time::HiRes::time()*1000)'); \
+		printf "Made %s in %s in %i.%.3is\\n" "$(subst -recurse,,$@)" "$$dir" "$$((($$END-$$START)/1000))" "$$((($$END-$$START)%1000))"; \
+		if [[ x$$EC != x0 ]]; then exit $$EC; fi \
 	done
 
 .PHONY: all-local all-recurse all-hook
