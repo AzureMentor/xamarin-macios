@@ -465,7 +465,7 @@ TOOLS64_CONFIGURE_FLAGS=	--build=x86_64-apple-darwin10 \
 			--disable-boehm \
 			$(XAMARIN_IOS_CONFIGURE_FLAGS) \
 
-ifeq ($(MONO_BUILD_FROM_SOURCE),)
+ifneq ($(MONO_BUILD_FROM_SOURCE),)
 TOOLS64_CONFIGURE_FLAGS += \
 			--with-monotouch=yes \
 			--with-monotouch_tv=yes \
