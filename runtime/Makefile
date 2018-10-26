@@ -309,19 +309,21 @@ $(eval $(call LibTemplate,ios,IOS))
 $(eval $(call LibTemplate,watchos,WATCHOS))
 $(eval $(call LibTemplate,tvos,TVOS))
 
-SDK_BUILDDIR=$(MONO_PATH)/sdks/builds
+.libs/zlib-helper/%/zlib-helper.o: $(BUILD_DESTDIR)/%/lib/libMonoPosixHelper.a Makefile
+	$(Q) mkdir -p $(dir $@)
+	$(Q) cd $(dir $@) && ar -x $< zlib-helper.o
 
-ZLIB_HELPER_IOS_armv7      = $(SDK_BUILDDIR)/ios-target32-release/support/zlib-helper.o
-ZLIB_HELPER_IOS_armv7s     = $(SDK_BUILDDIR)/ios-target32s-release/support/zlib-helper.o
-ZLIB_HELPER_IOS_arm64      = $(SDK_BUILDDIR)/ios-target64-release/support/zlib-helper.o
-ZLIB_HELPER_IOS_x86        = $(SDK_BUILDDIR)/ios-sim32-release/support/zlib-helper.o
-ZLIB_HELPER_IOS_x86_64     = $(SDK_BUILDDIR)/ios-sim64-release/support/zlib-helper.o
+ZLIB_HELPER_IOS_armv7      = .libs/zlib-helper/target7/zlib-helper.o
+ZLIB_HELPER_IOS_armv7s     = .libs/zlib-helper/target7s/zlib-helper.o
+ZLIB_HELPER_IOS_arm64      = .libs/zlib-helper/target64/zlib-helper.o
+ZLIB_HELPER_IOS_x86        = .libs/zlib-helper/simulator86/zlib-helper.o
+ZLIB_HELPER_IOS_x86_64     = .libs/zlib-helper/simulator64/zlib-helper.o
 
-ZLIB_HELPER_WATCHOS_armv7k = $(SDK_BUILDDIR)/ios-targetwatch-release/support/zlib-helper.o
-ZLIB_HELPER_WATCHOS_x86    = $(SDK_BUILDDIR)/ios-simwatch-release/support/zlib-helper.o
+ZLIB_HELPER_WATCHOS_armv7k = .libs/zlib-helper/targetwatch/zlib-helper.o
+ZLIB_HELPER_WATCHOS_x86    = .libs/zlib-helper/watchsimulator/zlib-helper.o
 
-ZLIB_HELPER_TVOS_arm64     = $(SDK_BUILDDIR)/ios-targettv-release/support/zlib-helper.o
-ZLIB_HELPER_TVOS_x86_64    = $(SDK_BUILDDIR)/ios-simtv-release/support/zlib-helper.o
+ZLIB_HELPER_TVOS_arm64     = .libs/zlib-helper/targettv/zlib-helper.o
+ZLIB_HELPER_TVOS_x86_64    = .libs/zlib-helper/tvsimulator/zlib-helper.o
 
 #
 # LibXamarinTemplate (and LibXamarinArchTemplate) builds libxamarin.a
